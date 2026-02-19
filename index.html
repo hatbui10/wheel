@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Lucky Wheel</title>
+
+<style>
+body{
+    background:#111;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    font-family:Arial, sans-serif;
+    color:white;
+}
+
+.wheel-wrapper{
+    position:relative;
+    width:400px;
+    height:400px;
+}
+
+#wheel{
+    border-radius:50%;
+    border:8px solid gold;
+    transition: transform 2.5s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.pointer{
+    position:absolute;
+    top:-25px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;
+    height:0;
+    border-left:20px solid transparent;
+    border-right:20px solid transparent;
+    border-top:40px solid red;
+    z-index:10;
+}
+
+button{
+    margin-top:30px;
+    padding:12px 30px;
+    font-size:18px;
+    border:none;
+    border-radius:8px;
+    background:gold;
+    cursor:pointer;
+    font-weight:bold;
+}
+button:hover{
+    background:orange;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎡 Lucky Wheel</h1>
+
+<div class="wheel-wrapper">
+    <div class="pointer"></div>
+    <canvas id="wheel" width="400" height="400"></canvas>
+</div>
+
+<button onclick="spin()">QUAY</button>
+
+<script>
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+
+const options = ["100$", "200$", "500$", "Chúc may mắn", "1000$", "Mất lượt"];
+const colors = ["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93","#ff924c"];
+
+const center = 200;
+const radius = 200;
+const arc = (2 * Math.PI) / options.length;
+
+function drawWheel(){
+    for(let i = 0; i < options.length; i++){
+        const angle = i * arc - Math.PI/2;
+
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, angle, angle + arc);
+        ctx.fillStyle = colors[i];
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(angle + arc/2);
+        ctx.fillStyle = "white";
+        ctx.font = "bold 16px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(options[i], 120, 5);
+        ctx.restore();
+    }
+}
+
+drawWheel();
+
+let spinning = false;
+let currentRotation = 0;
+
+function spin(){
+    if(spinning) return;
+    spinning = true;
+
+    const extraSpins = 4;
+    const randomDegree = Math.floor(Math.random() * 360);
+
+    currentRotation += 360 * extraSpins + randomDegree;
+
+    canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+    setTimeout(()=>{
+        // Lấy góc thật sự sau khi quay
+        let actualDegree = currentRotation % 360;
+
+        // Vì bánh quay theo chiều kim đồng hồ
+        let corrected = (360 - actualDegree) % 360;
+
+        const slice = 360 / options.length;
+        const index = Math.floor(corrected / slice);
+
+        alert("Kết quả: " + options[index]);
+
+        spinning = false;
+    },2500);
+}
+</script>
+
+</body>
+</html>
